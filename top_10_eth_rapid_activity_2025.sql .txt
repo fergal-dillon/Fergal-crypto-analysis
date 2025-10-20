@@ -1,0 +1,36 @@
+-- Top 10 Ethereum Wallets by Rapid In-and-Out Activity (2025)
+-- Combines deposits and withdrawals to identify wallets with high transaction frequency or high total ETH moved per hour in 2025
+
+
+WITH combined_activity AS (
+  -- Deposits
+  SELECT 
+    to_address AS wallet,
+    value,
+    block_timestamp
+  FROM `bigquery-public-data.crypto_ethereum.transactions`
+  WHERE block_timestamp >= '2025-01-01 00:00:00'
+    AND block_timestamp < '2026-01-01 00:00:00'
+
+  UNION ALL
+
+  -- Withdrawals
+  SELECT 
+    from_address AS wallet,
+    value,
+    block_timestamp
+  FROM `bigquery-public-data.crypto_ethereum.transactions`
+  WHERE block_timestamp >= '2025-01-01 00:00:00'
+    AND block_timestamp < '2026-01-01 00:00:00'
+)
+
+SELECT 
+  wallet,
+  TIMESTAMP_TRUNC(block_timestamp, HOUR) AS hour_window,
+  COUNT(*) AS transaction_count,
+  SUM(value) AS total_value
+FROM combined_activity
+GROUP BY wallet, TIMESTAMP_TRUNC(block_timestamp, HOUR)
+HAVING transaction_count > 5 OR total_value > 50
+ORDER BY total_value DESC, transaction_count DESC
+LIMIT 10;

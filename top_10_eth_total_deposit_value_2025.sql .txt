@@ -1,0 +1,9 @@
+-- Top 10 Ethereum Wallets by Total Deposit Value (2025)
+-- Aggregates deposits to show top wallets by total ETH received in 2025
+ select to_address , sum(value) AS total , TIMESTAMP_TRUNC(block_timestamp , HOUR) AS time_period , COUNT(*) AS transaction_count
+From bigquery-public-data.crypto_ethereum.transactions
+Where block_timestamp >= '2025-01-01 00:00:00' AND block_timestamp < '2026-01-01 00:00:00'
+GROUP BY to_address , time_period
+HAVING total > 100000
+ORDER BY total DESC
+LIMIT 10;

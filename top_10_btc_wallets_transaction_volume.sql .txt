@@ -1,0 +1,5 @@
+SELECT addresses, SUM(value) AS total
+FROM `bigquery-public-data.crypto_bitcoin.outputs`
+GROUP BY addresses
+ORDER BY total DESC
+LIMIT 10;
